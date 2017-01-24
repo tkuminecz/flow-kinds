@@ -1,152 +1,220 @@
 // @flow
-import { exhaust } from 'flow-helpers';
 
-// represents the end of a type list
-export class End {
-	static val: empty
-}
+export class End {}
 export type $End = Class<End>
 
-export type $List<A, B: $End | $List<any, any>> = { head: A, tail: B }
+export type $List<A, B: $List<any, any> | $End> = [A, B]
 
-export type $Head<T: $List<any, any>> = $PropertyType<T, 'head'>
-export type $Tail<T: $List<any, any>> = $PropertyType<T, 'tail'>
+// convienence types for creating lists of various lengths
+export type $1List<A> = $List<A, $End>
+export type $2List<A, B> = $List<A, $1List<B>>
+export type $3List<A, B, C> = $List<A, $2List<B, C>>
+export type $4List<A, B, C, D> = $List<A, $3List<B, C, D>>
+export type $5List<A, B, C, D, E> = $List<A, $4List<B, C, D, E>>
+export type $6List<A, B, C, D, E, F> = $List<A, $5List<B, C, D, E, F>>
 
-export type $T1<T> = $Head<T>
-export type $T2<T> = $Head<$Tail<T>>
-export type $T3<T> = $Head<$Tail<$Tail<T>>>
-export type $T4<T> = $Head<$Tail<$Tail<$Tail<T>>>>
-export type $T5<T> = $Head<$Tail<$Tail<$Tail<$Tail<T>>>>>
-export type $T6<T> = $Head<$Tail<$Tail<$Tail<$Tail<$Tail<T>>>>>>
-export type $T7<T> = $Head<$Tail<$Tail<$Tail<$Tail<$Tail<$Tail<T>>>>>>>
-export type $T8<T> = $Head<$Tail<$Tail<$Tail<$Tail<$Tail<$Tail<$Tail<T>>>>>>>>
+export const list1 = <A>(a: A): $1List<A> => [ a, End ];
+export const list2 = <A, B>(a: A, b: B): $2List<A, B> => [ a, list1(b) ];
+export const list3 = <A, B, C>(a: A, b: B, c: C): $3List<A, B, C> => [ a, list2(b, c) ];
+export const list4 = <A, B, C, D>(a: A, b: B, c: C, d: D): $4List<A, B, C, D> => [ a, list3(b, c, d) ];
+export const list5 = <A, B, C, D, E>(a: A, b: B, c: C, d: D, e: E): $5List<A, B, C, D, E> => [ a, list4(b, c, d, e) ];
+export const list6 = <A, B, C, D, E, F>(a: A, b: B, c: C, d: D, e: E, f: F): $6List<A, B, C, D, E, F> => [ a, list5(b, c, d, e, f) ];
 
-type $_Union<A, B, T: $List<A, B>> = A | $_Union<*, *, B>
-export type $Union<T: $List<any, any>> = $_Union<*, *, T>
+// extracts the head type of a list
+type $_Head<A, T: $List<A, any>> = A
+type $Head<T> = $_Head<*, T>
 
-type $_Intersect<A, B, T: $List<A, B>> = A & $_Intersect<*, *, B>
-export type $Intersect<T: $List<any, any>> = $_Intersect<*, *, T>
+// extracts the tail list of a list
+type $_Tail<B, T: $List<any, B>> = B
+type $Tail<T> = $_Tail<*, T>
 
-export type $List1<A> = $List<A, $End>
-export type $List2<A, B> = $List<A, $List1<B>>
-export type $List3<A, B, C> = $List<A, $List2<B, C>>
-export type $List4<A, B, C, D> = $List<A, $List3<B, C, D>>
-export type $List5<A, B, C, D, E> = $List<A, $List4<B, C, D, E>>
-export type $List6<A, B, C, D, E, F> = $List<A, $List5<B, C, D, E, F>>
-export type $List7<A, B, C, D, E, F, G> = $List<A, $List6<B, C, D, E, F, G>>
-export type $List8<A, B, C, D, E, F, G, H> = $List<A, $List7<B, C, D, E, F, G, H>>
+// creates a union of the types in the list
+type $_Union<A, B, T: $List<A, B>> = A | $Union<B>
+type $Union<T> = $_Union<*, *, T>
 
-//
-export const list1 = <A>(a: A): $List1<A> => ({ head: a, tail: End });
-export const list2 = <A, B>(a: A, b: B): $List2<A, B> => ({ head: a, tail: list1(b) });
-export const list3 = <A, B, C>(a: A, b: B, c: C): $List3<A, B, C> => ({ head: a, tail: list2(b, c) });
-export const list4 = <A, B, C, D>(a: A, b: B, c: C, d: D): $List4<A, B, C, D> => ({ head: a, tail: list3(b, c, d) });
-export const list5 = <A, B, C, D, E>(a: A, b: B, c: C, d: D, e: E): $List5<A, B, C, D, E> => ({ head: a, tail: list4(b, c, d, e) });
-export const list6 = <A, B, C, D, E, F>(a: A, b: B, c: C, d: D, e: E, f: F): $List6<A, B, C, D, E, F> => ({ head: a, tail: list5(b, c, d, e, f) });
-export const list7 = <A, B, C, D, E, F, G>(a: A, b: B, c: C, d: D, e: E, f: F, g: G): $List7<A, B, C, D, E, F, G> => ({ head: a, tail: list6(b, c, d, e, f, g) });
-export const list8 = <A, B, C, D, E, F, G, H>(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H): $List8<A, B, C, D, E, F, G, H> => ({ head: a, tail: list7(b, c, d, e, f, g, h) });
+// 1 type
+(['tim', End]: $List<string, $End>);
+// $FlowFixMe
+(['tim', End]: $List<number, $End>);
+(['tim', End]: $1List<string>);
+// $FlowFixMe
+(['tim', End]: $1List<number>);
+('tim': $Head<$1List<string>>);
+(End: $Tail<$1List<string>>);
 
-// type ListFn =
-// 	& (<A, B, C, D>(a: A, b: B, c: C, d: D) => $List3<A, B, C, D>)
-// 	& (<A, B, C>(a: A, b: B, c: C) => $List3<A, B, C>)
-// 	& (<A, B>(a: A, B) => $List2<A, B>)
-// 	& (<A>(a: A) => $List1<A>)
+// 2 types
+(['tim', [29, End]]: $List<string, $List<number, $End>>);
+// $FlowFixMe
+(['tim', [29, End]]: $List<string, $List<string, $End>>);
+(['tim', [29, End]]: $2List<string, number>);
+// $FlowFixMe
+(['tim', [true, End]]: $2List<string, number>);
+('tim': $Head<$2List<string, number>>);
+([29, End]: $Tail<$2List<string, number>>);
 
+// 3 types
+(['tim', [29, [true, End]]]: $List<string, $List<number, $List<bool, $End>>>);
+// $FlowFixMe
+(['tim', [29, [42, End]]]: $List<string, $List<number, $List<bool, $End>>>);
+(['tim', [29, [true, End]]]: $3List<string, number, bool>);
+// $FlowFixMe
+(['tim', [29, [42, End]]]: $3List<string, number, bool>);
+('tim': $Head<$3List<string, number, bool>>);
+([29, [true, End]]: $Tail<$3List<string, number, bool>>);
+// $FlowFixMe
+([29, [42, End]]: $Tail<$3List<string, number, bool>>);
 
-	// & (<A, B, C, D>(a: A, b: B, c: C, d: D) => $List4<A, B, C, D>)
-	// & (<A, B, C, D, E>(a: A, b: B, c: C, d: D, e: E) => $List5<A, B, C, D, E>)
-	// & (<A, B, C, D, E, F>(a: A, b: B, c: C, d: D, e: E) => $List6<A, B, C, D, E, F>)
-	// & (<A, B, C, D, E, F, G>(a: A, b: B, c: C, d: D, e: E) => $List7<A, B, C, D, E, F, G>)
-	// & (<A, B, C, D, E, F, G, H>(a: A, b: B, c: C, d: D, e: E) => $List8<A, B, C, D, E, F, G, H>)
-/*
-export const list: ListFn = (a, b, c, d) => {
+// 4 types
+(['tim', [29, [true, ['bar', End]]]]: $List<string, $List<number, $List<bool, $List<string, $End>>>>);
+// $FlowFixMe
+(['tim', [29, [true, [42, End]]]]: $List<string, $List<number, $List<bool, $List<string, $End>>>>);
+(['tim', [29, [true, ['bar', End]]]]: $4List<string, number, bool, string>);
+// $FlowFixMe
+(['tim', [29, [true, [42, End]]]]: $4List<string, number, bool, string>);
+('tim': $Head<$4List<string, number, bool, string>>);
+([29, [true, ['bar', End]]]: $Tail<$4List<string, number, bool, string>>);
+// $FlowFixMe
+([29, [true, [42, End]]]: $Tail<$4List<string, number, bool, string>>);
 
-	if (d == null) {
+// 5 types
+(['tim', [29, [true, ['bar', [true, End]]]]]: $List<string, $List<number, $List<bool, $List<string, $List<bool, $End>>>>>);
+// $FlowFixMe
+(['tim', [29, [true, ['bar', [42, End]]]]]: $List<string, $List<number, $List<bool, $List<string, $List<bool, $End>>>>>);
+(['tim', [29, [true, ['bar', [true, End]]]]]: $5List<string, number, bool, string, bool>);
+// $FlowFixMe
+(['tim', [29, [true, ['bar', [42, End]]]]]: $5List<string, number, bool, string, bool>);
+('tim': $Head<$5List<string, number, bool, string, bool>>);
+([29, [true, ['bar', [true, End]]]]: $Tail<$5List<string, number, bool, string, bool>>);
+// $FlowFixMe
+([29, [true, ['bar', [42, End]]]]: $Tail<$5List<string, number, bool, string, bool>>);
 
-	}
-	else {
-		return {
-			head: a,
-			tail: {
-				head: b,
-				tail: {
-					head: c,
-					tail: {
-						head: d,
-						tail: End
-					}
-				}
-			}
-		};
-	}
+// 6 types
+(['tim', [29, [true, ['bar', [true, [42, End]]]]]]: $List<string, $List<number, $List<bool, $List<string, $List<bool, $List<number, $End>>>>>>);
+// $FlowFixMe
+(['tim', [29, [true, ['bar', [true, ['foo', End]]]]]]: $List<string, $List<number, $List<bool, $List<string, $List<bool, $List<number, $End>>>>>>);
+(['tim', [29, [true, ['bar', [true, [42, End]]]]]]: $6List<string, number, bool, string, bool, number>);
+// $FlowFixMe
+(['tim', [29, [true, ['bar', [true, ['foo', End]]]]]]: $6List<string, number, bool, string, bool, number>);
+('tim': $Head<$6List<string, number, bool, string, bool, number>>);
+([29, [true, ['bar', [true, [42, End]]]]]: $Tail<$6List<string, number, bool, string, bool, number>>);
+// $FlowFixMe
+([29, [true, ['bar', [true, ['foo', End]]]]]: $Tail<$6List<string, number, bool, string, bool, number>>);
 
-	switch (args.length) {
+// union
+('tim': $Union<$2List<string, number>>);
+(42: $Union<$2List<string, number>>);
+// $FlowFixMe
+(true: $Union<$2List<string, number>>);
+
+type FromTupleFn =
+	& (<A>(tup: [A], ..._: Array<void>) => $1List<A>)
+	& (<A, B>(tup: [A, B], ..._: Array<void>) => $2List<A, B>)
+	& (<A, B, C>(tup: [A, B, C], ..._: Array<void>) => $3List<A, B, C>)
+	& (<A, B, C, D>(tup: [A, B, C, D], ..._: Array<void>) => $4List<A, B, C, D>)
+	& (<A, B, C, D, E>(tup: [A, B, C, D, E], ..._: Array<void>) => $5List<A, B, C, D, E>)
+	& (<A, B, C, D, E, F>(tup: [A, B, C, D, E, F], ..._: Array<void>) => $6List<A, B, C, D, E, F>)
+
+export const fromTuple: FromTupleFn = (((tup) => {
+	switch (tup.length) {
 		case 1: {
-			let [ a ] = args;
-			return {
-				head: a,
-				tail: End
-			};
+			const [ a ] = tup;
+			return list1(a);
 		}
 
 		case 2: {
-			let [ a, b, ...tail ] = args;
-			return {
-				head: a,
-				tail: {
-					head: b,
-					tail: End
-				}
-			};
+			const [ a, b ] = tup;
+			return list2(a, b);
 		}
 
 		case 3: {
-			let [ a, b, c, ...tail ] = args;
-			return {
-				head: a,
-				tail: {
-					head: b,
-					tail: {
-						head: c,
-						tail: End
-					}
-				}
-			};
+			const [ a, b, c ] = tup;
+			return list1(a, b, c);
 		}
 
-		case 4:
-			return {};
-
-		default: {
-			throw new TypeError();
+		case 4: {
+			const [ a, b, c, d ] = tup;
+			return list1(a, b, c, d);
 		}
+
+		case 5: {
+			const [ a, b, c, d, e ] = tup;
+			return list1(a, b, c, d, e);
+		}
+
+		case 6: {
+			const [ a, b, c, d, e, f ] = tup;
+			return list1(a, b, c, d, e, f);
+		}
+
+		default:
+			throw new Error(`Expected a tuple of at least 1 and no more than 6 elements`);
 	}
-};
-*/
+}: any): FromTupleFn);
 
-export const fromT1 = <A>(t: $List1<A>): A => t.head;
-export const fromT2 = <A, B>(t: $List2<A, B>): [A, B] => [ t.head, t.tail.head ];
-export const fromT3 = <A, B, C>(t: $List3<A, B, C>): [A, B, C] => [ t.head, t.tail.head, t.tail.tail.head ];
-export const fromT4 = <A, B, C, D>(t: $List4<A, B, C, D>): [A, B, C, D] => [ t.head, t.tail.head, t.tail.tail.head, t.tail.tail.tail.head ];
-export const fromT5 = <A, B, C, D, E>(t: $List5<A, B, C, D, E>): [A, B, C, D, E] => [ t.head, t.tail.head, t.tail.tail.head, t.tail.tail.tail.head, t.tail.tail.tail.tail.head ];
-export const fromT6 = <A, B, C, D, E, F>(t: $List6<A, B, C, D, E, F>): [A, B, C, D, E, F] => [ t.head, t.tail.head, t.tail.tail.head, t.tail.tail.tail.head, t.tail.tail.tail.tail.head, t.tail.tail.tail.tail.tail.head ];
-export const fromT7 = <A, B, C, D, E, F, G>(t: $List7<A, B, C, D, E, F, G>): [A, B, C, D, E, F, G] => [ t.head, t.tail.head, t.tail.tail.head, t.tail.tail.tail.head, t.tail.tail.tail.tail.head, t.tail.tail.tail.tail.tail.head, t.tail.tail.tail.tail.tail.tail.head ];
-export const fromT8 = <A, B, C, D, E, F, G, H>(t: $List8<A, B, C, D, E, F, G, H>): [A, B, C, D, E, F, G, H] => [ t.head, t.tail.head, t.tail.tail.head, t.tail.tail.tail.head, t.tail.tail.tail.tail.head, t.tail.tail.tail.tail.tail.head, t.tail.tail.tail.tail.tail.tail.head, t.tail.tail.tail.tail.tail.tail.tail.head ];
+type ToTupleFn =
+	& (<A>(list: $1List<A>, ..._: Array<void>) => [A])
+	& (<A, B>(list: $2List<A, B>, ..._: Array<void>) => [A, B])
+	& (<A, B, C>(list: $3List<A, B, C>, ..._: Array<void>) => [A, B, C])
+	& (<A, B, C, D>(list: $4List<A, B, C, D>, ..._: Array<void>) => [A, B, C, D])
+	& (<A, B, C, D, E>(list: $5List<A, B, C, D, E>, ..._: Array<void>) => [A, B, C, D, E])
+	& (<A, B, C, D, E, F>(list: $6List<A, B, C, D, E, F>, ..._: Array<void>) => [A, B, C, D, E, F])
+
+export const toTuple: ToTupleFn = (((list) => {
+	switch (list.length) {
+		case 1: {
+			const [ a ] = list;
+			return [ a ];
+		}
+
+		case 2: {
+			const [ a, [ b ] ] = list;
+			return [ a, b ];
+		}
+
+		case 3: {
+			const [ a, [ b, [ c ] ] ] = list;
+			return [ a, b, c ];
+		}
+
+		case 4: {
+			const [ a, [ b, [ c, [ d ] ] ] ] = list;
+			return [ a, b, c, d ];
+		}
+
+		case 5: {
+			const [ a, [ b, [ c, [ d, [ e ] ] ] ] ] = list;
+			return [ a, b, c, d, e ];
+		}
+
+		case 6: {
+			const [ a, [ b, [ c, [ d, [ e, [ f ] ] ] ] ] ] = list;
+			return [ a, b, c, d, e, f ];
+		}
+
+		default:
+			throw new Error(`Expected a list of at least 1 and no more then 8 elements`);
+	}
+}: any): ToTupleFn);
+
+type $_HigherType<T, H: Higher<T>> = T
+type $HigherType<H> = $_HigherType<*, H>
+
+export class Higher<T: $List<any, any>> {}
 
 export class HKT<K, T: $List<any, any>> {
 
 	/**
-	 * wrap :: Class k -> t -> HKT k t
+	 * wrap :: Higher t -> HKT (Higher t) t
 	 */
-	static wrap<K, I, T: $List<any, any>>(kind: Class<K>, value: T): HKT<K, T> {
-		return ((value: any): HKT<K, T>);
+	static wrap<T: $List<any, any>, H: Higher<T>>(higherType: Class<H>, values: T): HKT<H, T> {
+		return ((values: any): HKT<H, T>);
 	}
 
 	/**
-	 * unwrap :: HKT k t ~> t
+	 * unwrap :: Class (Higher t) -> HKT (Higher t) t -> t
 	 */
-	static unwrap<K, T: $List<any, any>>(kind: Class<K>, value: HKT<K, T>): T {
-		return ((value: any): T);
+	static unwrap<T, H: Higher<T>>(higherType: Class<H>, hkt: HKT<H, T>): T {
+		return ((hkt: any): T);
 	}
 
 }
