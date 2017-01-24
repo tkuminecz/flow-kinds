@@ -32,25 +32,20 @@ export type $Tail<T> = $_Tail<*, T>
 type $_Union<A, B, T: $List<A, B>> = A | $Union<B>
 export type $Union<T> = $_Union<*, *, T>
 
-type $_HigherType<T, H: HigherType<T>> = T
-export type $HigherType<H> = $_HigherType<*, H>
+export class HigherKind<T: $List<any, any>> {}
 
-export class HigherType<T: $List<any, any>> {}
+export class $Higher<K, T: $List<any, any>> {}
 
-export class Higher<K, T: $List<any, any>> {
+/**
+ * wrap :: Class (HigherKind t) -> $Higher (HigherKind t) t
+ */
+export function wrap<T: $List<any, any>, H: HigherKind<T>>(higherKind: Class<H>, values: T): $Higher<H, T> {
+	return ((values: any): $Higher<H, T>);
+}
 
-	/**
-	 * wrap :: HigherType t -> Hight (HigherType t) t
-	 */
-	static wrap<T: $List<any, any>, H: HigherType<T>>(higherType: Class<H>, values: T): Higher<H, T> {
-		return ((values: any): Higher<H, T>);
-	}
-
-	/**
-	 * unwrap :: Class (HigherType t) -> Higher (HigherType t) t -> t
-	 */
-	static unwrap<T, H: HigherType<T>>(higherType: Class<H>, hkt: Higher<H, T>): T {
-		return ((hkt: any): T);
-	}
-
+/**
+ * unwrap :: Class (HigherKind t) -> $Higher (HigherKind t) t -> t
+ */
+export function unwrap<T, H: HigherKind<T>>(higherKind: Class<H>, hkt: $Higher<H, T>): T {
+	return ((hkt: any): T);
 }
