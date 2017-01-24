@@ -44,5 +44,8 @@
     "nyc": "^10.1.2",
     "tap-diff": "^0.1.1",
     "tape": "^4.6.3"
+  },
+  "dependencies": {
+    "flow-helpers": "^0.2.0"
   }
 }
