@@ -78,15 +78,16 @@ class IsPair {}
 
 export class Pair<A, B> extends Type<IsPair, $2Types<A, B>, [A, B]> {
 
-  static Pair: <A, B>(a: A, b: B) => Pair<A, B>
-    = (a, b) => Pair._wrap(IsPair, [a, b]);
+  static Both<A, B>(a: A, b: B): Pair<A, B> {
+    return Pair._wrap(IsPair, [a, b]);
+  }
 
 }
 ```
 
 ### `HigherType.wrap(kind, value)`
 
-Takes a class as the kind and a compatible value of values and returns a value of type `$Higher`.
+Takes a class as the kind and a compatible value and returns a `HigherType` instance.
 
 ### `HigherType.unwrap(kind, wrappedValue)`
 
