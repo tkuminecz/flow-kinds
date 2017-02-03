@@ -23,6 +23,7 @@ export type $5Types<A, B, C, D, E> = $ListOf5<A, B, C, D, E>
 export type $6Types<A, B, C, D, E, F> = $ListOf6<A, B, C, D, E, F>
 
 export type $Empty = $1Type<empty>
+export type $Unit = $Empty
 
 type $_Head<H, L: $List<H, any>> = H // eslint-disable-line no-unused-vars
 export type $Head<L> = $_Head<*, L>
