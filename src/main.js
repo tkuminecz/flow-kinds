@@ -59,28 +59,31 @@ export type $Union<L> = $_Union<*, *, L>
 
 export type $Tag<Label, Data> = { tag: Label, val: $TupleMap<Data, <V>(v: V) => V> }
 
-export type $App<K, T> = $Subtype<Type<K, T, *>>
+export type $HigherApp<K, T> = $Subtype<HigherType<K, T, *>>
 
-export class Type<Kind, Types, Data> {
+/**
+ * `HigherType` class
+ */
+export class HigherType<Kind, Types, Data> {
 
 	/**
-	 * _ :: d -> Type k t d
+	 * _ :: d -> HigherType k t d
 	 */
-	static _<I: Type<Kind, Types, Data>>(data: Data): I {
+	static _<I: HigherType<Kind, Types, Data>>(data: Data): I {
 		return ((data: any): I);
 	}
 
 	/**
-	 * wrap :: Class k -> d -> Type k t d
+	 * wrap :: Class k -> d -> HigherType k t d
 	 */
-	static wrap<I: Type<Kind, Types, Data>>(kind: Class<Kind>, data: Data): I {
+	static wrap<I: HigherType<Kind, Types, Data>>(kind: Class<Kind>, data: Data): I {
 		return ((data: any): I);
 	}
 
 	/**
-	 * unwrap :: Class k -> Type k t d -> d
+	 * unwrap :: Class k -> HigherType k t d -> d
 	 */
-	static unwrap<I: Type<Kind, Types, Data>>(kind: Class<Kind>, wrapped: I): Data {
+	static unwrap<I: HigherType<Kind, Types, Data>>(kind: Class<Kind>, wrapped: I): Data {
 		return ((wrapped: any): Data);
 	}
 
